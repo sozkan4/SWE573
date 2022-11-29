@@ -1,5 +1,5 @@
 """
-WSGI config for mInfopack project.
+WSGI config for infopack project.
 
 It exposes the WSGI callable as a module-level variable named ``application``.
 
@@ -11,6 +11,6 @@ import os
 
 from django.core.wsgi import get_wsgi_application
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'Infopack.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'infopack.settings')
 
 application = get_wsgi_application()
