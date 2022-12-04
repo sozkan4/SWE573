@@ -23,4 +23,3 @@ urlpatterns = [
     path('', include('infapp.urls')),
     path('admin/', admin.site.urls),
 ]
-urlpatterns += staticfiles_urlpatterns()
