@@ -15,6 +15,11 @@ def index(request):
     output += x["firstname"]
   return HttpResponse(output)
 
+
+def landing(request):
+    template = loader.get_template('landing.html')
+    return render(request, 'landing.html')
+
 def login(request):
     template = loader.get_template('login.html')
     return render(request, 'login.html')

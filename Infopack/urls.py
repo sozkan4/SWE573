@@ -20,5 +20,6 @@ urlpatterns = [
     path('infapp/', include('infapp.urls')),
     path('login/', include('infapp.urls')),
     path('register/', include('infapp.urls')),
+    path('', include('infapp.urls')),
     path('admin/', admin.site.urls),
 ]
