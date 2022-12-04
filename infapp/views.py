@@ -7,6 +7,7 @@ from .forms import NewUserForm
 from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.contrib.auth import login as django_login, authenticate
+from .models import Blog
 
 def index(request):
   mymembers = Infapp.objects.all().values()
@@ -14,6 +15,12 @@ def index(request):
   for x in mymembers:
     output += x["firstname"]
   return HttpResponse(output)
+
+
+def posts_list(request):
+    posts = Blog.objects.all()
+    template = loader.get_template('posts-list.html')
+    return render(request, 'posts-list.html')
 
 def index(request):
     template = loader.get_template('index.html')
