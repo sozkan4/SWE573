@@ -1,3 +1,5 @@
+# default django app with mysql database
+
 version: "3.3"
 
 services:
@@ -13,20 +15,8 @@ services:
     volumes:
       - db_data:/var/lib/mysql
     expose:
+      # Opens port 3306 on the container
       - '3306'
-
-
-  django:
-    image: django-docker:0.0.1
-    build: .
-    ports:
-      - "8000:8000" 
-
 
 volumes:
   db_data:
-
-
-
-
-  
