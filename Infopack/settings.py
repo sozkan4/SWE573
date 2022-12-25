@@ -76,7 +76,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'infopack.wsgi.application'
+WSGI_APPLICATION = 'Infopack.wsgi.application'
 
 
 # Database
@@ -159,7 +159,7 @@ MESSAGE_TAGS = {
         messages.ERROR: 'alert-danger',
 }
 
-ASGI_APPLICATION = "infopack.routing.application"
+ASGI_APPLICATION = "Infopack.routing.application"
 
 CHANNEL_LAYERS = {
     "default":{
