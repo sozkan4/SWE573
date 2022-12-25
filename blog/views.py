@@ -1,509 +1,275 @@
-
-from .models import Notification
-from django.core.checks import messages
-from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.contrib.auth.models import User
-from django.urls import reverse_lazy, reverse
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
-from .models import Comment, Post
-from .forms import CommentForm
-from django.http import HttpResponseRedirect, JsonResponse
-from .models import Profile
-from itertools import chain
-from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect
+from .models import Contact, Post, User, Comment
 from django.contrib import messages
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.template.loader import render_to_string
-import random
-from .utils import is_ajax
-from django.shortcuts import redirect, render
-from django.http import HttpResponse
-import json
-from django.contrib.auth.models import User
-from .models import FriendList, FriendRequest
+from django.http import HttpResponse, HttpResponseRedirect
+from datetime import date
+from django.urls import reverse_lazy, reverse
+from django.core.exceptions import ObjectDoesNotExist
 
-def first(request):
-    context = {
-        'posts':Post.objects.all()
-    }
-    return render(request, 'first.html', context)
+# Create your views here.
+def home(request):
+    if 'user' in request.session:
+        current_user = request.session['user']
+        user_posts = Post.objects.all().order_by('-id')
+        param = {'current_user': current_user, 'user_posts': user_posts}
+        return render(request, 'blogs.html', param)
+    else:
+        feature_post =  Post.objects.all().order_by('-id')[:3]
+        param = {'feature_post': feature_post}
+        return render(request, 'home.html', param)
 
-@login_required
-def posts_of_following_profiles(request):
 
-    profile = Profile.objects.get(user = request.user)
-    users = [user for user in profile.following.all()]
-    posts = []
-    qs = None
-    for u in users:
-        p = Profile.objects.get(user=u)
-        p_posts = p.user.post_set.all()
-        posts.append(p_posts)
-    my_posts = profile.profile_posts()
-    posts.append(my_posts)
-    if len(posts)>0:
-        qs = sorted(chain(*posts), reverse=True, key=lambda obj:obj.date_posted)
 
-    paginator = Paginator(qs, 5)
-    page = request.GET.get('page')
+
+
+
+def view_post(request, post_title):
+    get_post = Post.objects.get(title=post_title)
+    all_rel_posts = Post.objects.filter(user__first_name=get_post.user)
+    post_comments = get_post.comment_set.all().order_by('-id')
+    liked = False
     try:
-        posts_list = paginator.page(page)
-    except PageNotAnInteger:
-        posts_list = paginator.page(1)
-    except EmptyPage:
-        posts_list = paginator.page(paginator.num_pages)
-  
-    return render(request,'blog/feeds.html',{'profile':profile,'posts':posts_list})
+        if get_post.likes.filter(first_name=request.session['user']).exists():
+            liked = True
+    except:
+        return redirect('home')
+
+    param = {'post_data': get_post, 'all_posts':all_rel_posts,'post_comments':post_comments, 'liked':liked}
+    return render(request, 'post.html', param)
 
 
-""" Post Like """
-@login_required
-def LikeView(request):
 
-    post = get_object_or_404(Post, id=request.POST.get('id'))
+def like_post(request, post_title):
+    user = User.objects.get(first_name=request.session['user'])
+    post = Post.objects.get(title=post_title)
     liked = False
-    if post.likes.filter(id=request.user.id).exists():
-        post.likes.remove(request.user)
+    if post.likes.filter(first_name=request.session['user']).exists():
+        post.likes.remove(user) 
         liked = False
-        notify = Notification.objects.filter(post=post, sender=request.user, notification_type=1)
-        notify.delete()
     else:
-        post.likes.add(request.user)
+        post.likes.add(user)
         liked = True
-        notify = Notification(post=post, sender=request.user, user=post.author, notification_type=1)
-        notify.save()
-
-    context = {
-        'post':post,
-        'total_likes':post.total_likes(),
-        'liked':liked,
-    }
-
-    if is_ajax(request=request):
-        html = render_to_string('blog/like_section.html',context, request=request)
-        return JsonResponse({'form':html})
+    return HttpResponseRedirect(reverse('view_post', args=[str(post_title)]))
 
 
-""" Post save """
-@login_required
-def SaveView(request):
+def delete_post(request, post_title):
+    get_post = Post.objects.get(title=post_title)
+    get_post.delete()
+    messages.success(request, 'Post has been deleted succsfully.')
+    return redirect(f'/profile/{get_post.user.first_name}')
 
-    post = get_object_or_404(Post, id=request.POST.get('id'))
-    saved = False
-    if post.saves.filter(id=request.user.id).exists():
-        post.saves.remove(request.user)
-        saved = False
+
+
+def view_profile(request, user):
+    try:
+        user_obj = User.objects.get(first_name=user)
+    except ObjectDoesNotExist:
+        return HttpResponse('User does not exists.')
+
+    user_posts = user_obj.post_set.all().order_by('-id')
+    lis = []
+    for post in user_posts:
+        lis.append(post.likes.count())
+    total_post_likes = sum(lis)
+
+    param = {'user_posts': user_posts, 'user_data': user_obj, 'total_post_likes': total_post_likes}
+    try:
+        return render(request, 'profile.html', param)
+    except:
+        messages.warning(request, f"You have to login before access {user}'s profile.")
+        return redirect('home')
+
+
+def update_profile(request, current_user):
+    if request.method == 'POST':
+        get_user = User.objects.get(first_name=current_user)
+
+        fname = request.POST.get('fname')
+        lname = request.POST.get('lname')
+        mail = request.POST.get('mail')
+        bio = request.POST.get('bio')
+
+
+        get_user.first_name = fname
+        get_user.last_name = lname
+        get_user.email = mail
+        get_user.bio = bio
+        get_user.save()
+        return redirect(f'/profile/{get_user.first_name}')
     else:
-        post.saves.add(request.user)
-        saved = True
-    
-    context = {
-        'post':post,
-        'total_saves':post.total_saves(),
-        'saved':saved,
-    }
-
-    if is_ajax(request=request):
-        html = render_to_string('blog/save_section.html',context, request=request)
-        return JsonResponse({'form':html})
+        return redirect('profile')
 
 
-""" Like post comments """
-@login_required
-def LikeCommentView(request): # , id1, id2              id1=post.pk id2=reply.pk
-    post = get_object_or_404(Comment, id=request.POST.get('id'))
-    cliked = False
-    if post.likes.filter(id=request.user.id).exists():
-        post.likes.remove(request.user)
-        cliked = False
-    else:
-        post.likes.add(request.user)
-        cliked = True
+def change_image(request, user):
+    get_user = User.objects.get(first_name=user)
+    new_pic = request.FILES['image']
 
-    cpost = get_object_or_404(Post, id=request.POST.get('pid'))
-    total_comments2 = cpost.comments.all().order_by('-id')
-    total_comments = cpost.comments.all().filter(reply=None).order_by('-id')
-    tcl={}
-    for cmt in total_comments2:
-        total_clikes = cmt.total_clikes()
-        cliked = False
-        if cmt.likes.filter(id=request.user.id).exists():
-            cliked = True
-
-        tcl[cmt.id] = cliked
+    get_user.profile_pic = new_pic
+    get_user.save()
+    messages.success(request, 'Profile Picture updated succsfully.')
+    return redirect(f'/profile/{get_user.first_name}')
 
 
-    context = {
-        'comment_form':CommentForm(),
-        'post':cpost,
-        'comments':total_comments,
-        'total_clikes':post.total_clikes(),
-        'clikes':tcl
-    }
-
-    if is_ajax(request=request):
-        html = render_to_string('blog/comments.html',context, request=request)
-        return JsonResponse({'form':html})
+def settings(request, user):
+    get_user = User.objects.get(first_name=user)
 
 
-class PostListView(ListView):
-    model = Post
-    template_name = 'blog/home.html' 
-    context_object_name = 'posts'
-    ordering = ['-date_posted']
-    paginate_by = 5
-
-    def get_context_data(self, *args,**kwargs):
-        context = super(PostListView, self).get_context_data()
-        users = list(User.objects.exclude(pk=self.request.user.pk))
-        if len(users) > 3:
-            cnt = 3
-        else:
-            cnt = len(users)
-        random_users = random.sample(users, cnt)
-        context['random_users'] = random_users
-        return context
+    if request.method == 'POST':
+        pwd1 = request.POST['pwd1']
+        pwd2 = request.POST['pwd2']
+        email = request.POST['mail']
 
 
-class UserPostListView(ListView):
-    model = Post
-    template_name = 'blog/user_posts.html' 
-    context_object_name = 'posts'
-    paginate_by = 5
-
-    def get_queryset(self):
-        user = get_object_or_404(User, username=self.kwargs.get('username'))
-        return Post.objects.filter(author=user).order_by('-date_posted')
-
-
-
-def PostDetailView(request,pk):
-
-    stuff = get_object_or_404(Post, id=pk)
-    total_likes = stuff.total_likes()
-    total_saves = stuff.total_saves()
-    total_comments = stuff.comments.all().filter(reply=None).order_by('-id')
-    total_comments2 = stuff.comments.all().order_by('-id')
-
-    context = {}
-
-    if request.method == "POST":
-        comment_qs = None
-        comment_form = CommentForm(request.POST or None)
-        if comment_form.is_valid():
-            form = request.POST.get('body')
-            reply_id = request.POST.get('comment_id')
-            if reply_id:
-                comment_qs = Comment.objects.get(id=reply_id)
-            
-            comment = Comment.objects.create(name=request.user,post=stuff,body=form, reply=comment_qs)
-            comment.save()
-            if reply_id:
-                notify = Notification(post=stuff, sender=request.user, user=stuff.author, text_preview=form, notification_type=4)
-                notify.save()
+        if (pwd1 and pwd2) and not email:
+            if pwd1==pwd2:
+                get_user.password = pwd1
+                get_user.save()
+                messages.success(request, 'Password saved succesfully.')
             else:
-                notify = Notification(post=stuff, sender=request.user, user=stuff.author, text_preview=form, notification_type=3)
-                notify.save()
-            total_comments = stuff.comments.all().filter(reply=None).order_by('-id')
-            total_comments2 = stuff.comments.all().order_by('-id')
+                messages.warning(request, 'Password are not same.')
+        elif email and not (pwd1 and pwd2):
+            get_user.email = email
+            get_user.save()
+            messages.success(request, 'Email saved succesfully.')
+        elif (pwd1 and pwd2) and email:
+            if pwd1==pwd2:
+                get_user.password = pwd1
+                get_user.email = email
+                get_user.save()
+                messages.success(request, 'Password and Email saved succesfully.')
+            else:
+                messages.warning(request, 'Password are not same.')
+
+    param = {'user_data': get_user}
+    return render(request, 'profile_setting.html', param)
+
+
+
+def delete_user(request, user):
+    if request.method == 'POST':
+        get_user = User.objects.get(first_name=user)
+
+        firstName = request.POST.get('first_name')
+        if firstName == get_user.first_name:
+            get_user.delete()
+            del request.session['user']
+            return redirect('home')
+
+    return HttpResponseRedirect(reverse('settings', args=[str(user)]))
+
+
+
+
+
+def write_post(request):
+    return render(request, 'create_post.html')
+
+
+
+def post_created(request):
+    if request.method == 'POST':
+        post_title = request.POST.get('title')
+        post_content = request.POST.get('content')
+        get_user = User.objects.get(first_name=request.session['user'])
+        create_post = Post(user=get_user, title=post_title, content=post_content,creation_date=date.today())
+        create_post.save()
+        messages.success(request, 'Post has been created succsfully.')
+        return render(request, 'create_post.html')
     else:
-        comment_form = CommentForm()
-             
-
-    tcl={}
-    for cmt in total_comments2:
-        total_clikes = cmt.total_clikes()
-        cliked = False
-        if cmt.likes.filter(id=request.user.id).exists():
-            cliked = True
-
-        tcl[cmt.id] = cliked
-    context["clikes"]=tcl
-
-
-    liked = False
-    if stuff.likes.filter(id=request.user.id).exists():
-        liked = True
-    context["total_likes"]=total_likes
-    context["liked"]=liked
-
-
-    saved = False
-    if stuff.saves.filter(id=request.user.id).exists():
-        saved = True
-    context["total_saves"]=total_saves
-    context["saved"]=saved
-    
-
-    context['comment_form'] = comment_form
-
-    context['post']=stuff
-    context['comments']=total_comments
-
-    if is_ajax(request=request):
-        html = render_to_string('blog/comments.html',context, request=request)
-        return JsonResponse({'form':html})
-
-    return render(request, 'blog/post_detail.html', context)
-
-
-class PostCreateView(LoginRequiredMixin, CreateView):
-    model = Post
-    fields =['title', 'content']
-
-    def form_valid(self, form):
-        form.instance.author = self.request.user
-        return super().form_valid(form)
-
-
-
-class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
-    model = Post
-    fields =['title', 'content']
-
-    def form_valid(self, form):
-        form.instance.author = self.request.user
-        return super().form_valid(form)
-
-    def test_func(self):
-        post = self.get_object()
-        if self.request.user == post.author:
-            return True
-        return False
-
-
-class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
-    model = Post
-    success_url = '/'
-
-    def test_func(self):
-        post = self.get_object()
-        if self.request.user == post.author:
-            return True
-        return False
-
-
-def about(request):
-    return render(request, 'blog/about.html', {'title':'About'})
+        return render(request, 'create_post.html')
 
 
 def search(request):
-    query = request.GET['query']
-    if len(query) >= 150 or len(query) < 1:
-        allposts = Post.objects.none()
-    elif len(query.strip()) == 0:
-        allposts = Post.objects.none()
-    else:
-        allpostsTitle = Post.objects.filter(title__icontains=query)
-        allpostsAuthor = Post.objects.filter(author__username = query)
-        allposts = allpostsAuthor.union(allpostsTitle)
-    
-    params = {'allposts': allposts}
-    return render(request, 'blog/search_results.html', params)
+    query = request.GET.get('query')
+    search_user_posts = Post.objects.filter(user__first_name__icontains=query)
+    search_title = Post.objects.filter(title__icontains=query)
+    search_content = Post.objects.filter(content__icontains=query)
+    search_result = search_title.union(search_content,search_user_posts)
 
-
-@login_required
-def AllLikeView(request):
-    user = request.user
-    liked_posts = user.blogpost.all()
-    context = {
-        'liked_posts':liked_posts
-    }
-    return render(request, 'blog/liked_posts.html', context)
-
-
-@login_required
-def AllSaveView(request):
-    user = request.user
-    saved_posts = user.blogsave.all()
-    context = {
-        'saved_posts':saved_posts
-    }
-    return render(request, 'blog/saved_posts.html', context)
+    param = {'search_result': search_result, 'search_term':query}
+    return render(request, 'search.html', param)
 
 
 
-class PostList(generic.ListView):
-    queryset = Post.objects.filter(status=1).order_by('-created_on')
-    template_name = 'index.html'
+def signup(request):
+    if request.method == 'POST':
+        fname = request.POST.get('first_name')
+        lname = request.POST.get('last_name')
+        mail = request.POST.get('mail')
+        pwd = request.POST.get('pwd')
+        bio = request.POST.get('bio')
 
-def friends_list_view(request, *args, **kwargs):
-    context = {}
-    user = request.user
-    if user.is_authenticated:
-        user_id = kwargs.get("user_id")
-        if user_id:
-            try:
-                this_user = User.objects.get(pk=user_id)
-                context['this_user'] = this_user
-            except User.DoesNotExist:
-                return HttpResponse("That user does not exist.")
-            try:
-                friend_list = FriendList.objects.get(user=this_user)
-            except FriendList.DoesNotExist:
-                return HttpResponse(f"Could not find a friends list for {this_user.username}")
-            
-            # Must be friends to view a friends list
-            if user != this_user:
-                if not user in friend_list.friends.all():
-                    return HttpResponse("You must be friends to view their friends list.")
-            friends = [] # [(friend1, True), (friend2, False), ...]
-            # get the authenticated user's friend list
-            auth_user_friend_list = FriendList.objects.get(user=user)
-            for friend in friend_list.friends.all():
-                friends.append((friend, auth_user_friend_list.is_mutual_friend(friend)))
-            context['friends'] = friends
-    else:		
-        return HttpResponse("You must be friends to view their friends list.")
-    return render(request, "friend/friend_list.html", context)
-
-
-
-def friend_requests(request, *args, **kwargs):
-    context = {}
-    user = request.user
-    if user.is_authenticated:
-        user_id = kwargs.get("user_id")
-        account = User.objects.get(pk=user_id)
-        if account == user:
-            friend_requests = FriendRequest.objects.filter(receiver=account, is_active=True)
-            context['friend_requests'] = friend_requests
+        create_user = User(first_name=fname, last_name=lname, email=mail, password=pwd, bio=bio)
+        if not User.objects.filter(email=mail).exists():
+            create_user.save()
+            messages.success(request, 'Your account has been created succsfully.')
+            return redirect('home')
         else:
-            return HttpResponse("You can't view another users friend requets.")
+            messages.error(request, 'This User is already exists.')
+            return redirect('home')
+
+
     else:
-        redirect("login")
-    return render(request, "friend/friend_requests.html", context)
+        return redirect('home')
 
 
 
-def send_friend_request(request, *args, **kwargs):
-    user = request.user
-    payload = {}
-    if request.method == "POST" and user.is_authenticated:
-        user_id = request.POST.get("receiver_user_id")
-        if user_id:
-            receiver = User.objects.get(pk=user_id)
-            try:
-                friend_requests = FriendRequest.objects.filter(sender=user, receiver=receiver)
-                try:
-                    for request in friend_requests:
-                        if request.is_active:
-                            raise Exception("You already sent them a friend request.")
-                    friend_request = FriendRequest(sender=user, receiver=receiver)
-                    friend_request.save()
-                    payload['response'] = "Friend request sent."
-                except Exception as e:
-                    payload['response'] = str(e)
-            except FriendRequest.DoesNotExist:
-                friend_request = FriendRequest(sender=user, receiver=receiver)
-                friend_request.save()
-                payload['response'] = "Friend request sent."
-            
-            if payload['response'] == None:
-                payload['response'] = "Something went wrong."
+def login(request):
+    if request.method == 'POST':
+        mail = request.POST.get('mail')
+        pwd = request.POST.get('pwd')
+
+        check_user = User.objects.filter(email=mail, password=pwd)
+        if check_user:
+            request.session['user'] = check_user.first().first_name
+            return redirect('home')
         else:
-            payload['response'] = "Unable to sent a friend request"
+            messages.warning(request, 'Invalid User')
+            return redirect('home')
     else:
-        payload['response'] = "You must be authenticated to send a friend request."
-    return HttpResponse(json.dumps(payload), content_type="application/json")
-    
+        return redirect('home')
 
-def accept_friend_request(request, *args, **kwargs):
-    user = request.user
-    payload = {}
-    if request.method == "GET" and user.is_authenticated:
-        friend_request_id = kwargs.get("friend_request_id")
-        if friend_request_id:
-            friend_request = FriendRequest.objects.get(pk=friend_request_id)
-            # confirm that is the correct request
-            if friend_request.receiver == user:
-                if friend_request: 
-                    # Accepting the founded request
-                    friend_request.accept()
-                    payload['response'] = "Friend request accepted."
 
-                else:
-                    payload['response'] = "Something went wrong."
-            else:
-                payload['response'] = "That is not your request to accept."
-        else:
-            payload['response'] = "Unable to accept that friend request."
+
+def logout(request):
+    try:
+        del request.session['user']
+    except:
+        return redirect('login')
+    return redirect('login')
+
+
+
+
+
+
+
+
+
+def contact(request):
+    if request.method == 'POST':
+        full_name = request.POST.get('full_name')
+        mail = request.POST.get('mail')
+        msg = request.POST.get('msg')
+
+
+        create_contact = Contact(name=full_name, email=mail, message=msg)
+        create_contact.save()
+        messages.success(request, 'Your form has been submitted.')
+        return redirect("contact")
+
     else:
-        payload['response'] = "You must be authenticated to accept a friend request."
-    return HttpResponse(json.dumps(payload), content_type="application/json")
-
-
-def remove_friend(request, *args, **kwargs):
-    user = request.user
-    payload = {}
-    if request.method == "POST" and user.is_authenticated:
-        user_id = request.POST.get("receiver_user_id")
-        if user_id:
-            try:
-                removee = User.objects.get(pk=user_id)
-                friend_list = FriendList.objects.get(user=user)
-                friend_list.unfriend(removee)
-                payload['response'] = "Successfully removed that friend."
-            except Exception as e:
-                payload['response'] = f"Something went wrong: {str(e)}"
-        else:
-            payload['response'] = "There was an error. Unable to remove that friend."
-    else:
-        payload['response'] = "You must be authenticated to remove a friend."
-    return HttpResponse(json.dumps(payload), content_type="application/json")
-
-
-def decline_friend_request(request, *args, **kwargs):
-    user = request.user
-    payload = {}
-    if request.method == "GET" and user.is_authenticated:
-        friend_request_id = kwargs.get("friend_request_id")
-        if friend_request_id:
-            friend_request = FriendRequest.objects.get(pk=friend_request_id)
-            # confirm that is the correct request
-            if friend_request.receiver == user:
-                if friend_request: 
-                    # Declining the founded request
-                    friend_request.decline()
-                    payload['response'] = "Friend request declined."
-                else:
-                    payload['response'] = "Something went wrong."
-            else:
-                payload['response'] = "That is not your friend request to decline."
-        else:
-            payload['response'] = "Unable to decline that friend request."
-    else:
-        payload['response'] = "You must be authenticated to decline a friend request."
-    return HttpResponse(json.dumps(payload), content_type="application/json")
+        return render(request, 'contact.html')
 
 
 
 
-def cancel_friend_request(request, *args, **kwargs):
-	user = request.user
-	payload = {}
-	if request.method == "POST" and user.is_authenticated:
-		user_id = request.POST.get("receiver_user_id")
-		if user_id:
-			receiver = User.objects.get(pk=user_id)
-			try:
-				friend_requests = FriendRequest.objects.filter(sender=user, receiver=receiver, is_active=True)
-			except FriendRequest.DoesNotExist:
-				payload['response'] = "Nothing to cancel. Friend request does not exist."
-
-			# There should only ever be one active friend request at any given time. Cancel them all just in case.
-			if len(friend_requests) > 1:
-				for request in friend_requests:
-					request.cancel()
-				payload['response'] = "Friend request cancelled."
-			else:
-				# Cancelling the founded request
-				friend_requests.first().cancel()
-				payload['response'] = "Friend request cancelled."
-		else:
-			payload['response'] = "Unable to cancel that friend request."
-	else:
-		payload['response'] = "You must be authenticated to cancel a friend request."
-	return HttpResponse(json.dumps(payload), content_type="application/json")
-
+#Create Comments
+def add_comment(request, post_title):
+    name = request.session['user']
+    comment = request.POST.get('comment')
+    post = Post.objects.get(title=post_title)
+    if name!="" and comment!="":
+        create_comment = Comment(post=post, name=name, comment=comment)
+        create_comment.save()
+        return HttpResponseRedirect(reverse('view_post', args=[str(post_title)]))
