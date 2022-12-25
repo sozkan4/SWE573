@@ -58,6 +58,20 @@ def delete_post(request, post_title):
     messages.success(request, 'Post has been deleted succsfully.')
     return redirect(f'/profile/{get_post.user.first_name}')
 
+def update_post(request, post_title):
+    if request.method == 'POST':
+        get_post = Post.objects.get(title=post_title)
+        title = request.POST.get('title')
+        content = request.POST.get('content')
+        image = request.FILES.get('image')
+        get_post.title = title
+        get_post.content = content
+        get_post.image = image
+        get_post.save()
+        return redirect(f'/post/{get_post.title}')
+    else:
+        return redirect('home')
+
 
 
 def view_profile(request, user):
