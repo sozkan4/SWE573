@@ -10,7 +10,7 @@
 <div class="card text-center">
   <div class="card-header">
 
-   <img src="{% static user_data.profile_pic.url %}" width="180" height="180" class="img-thumbnail" alt="profile_image" style="border-radius:50%;">
+   <img src="{% user.profile.image.url %}" width="180" height="180" class="img-thumbnail" alt="profile_image" style="border-radius:50%;">
    <br>
 
    {% if request.session.user == user_data.first_name %}

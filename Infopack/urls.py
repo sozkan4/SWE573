@@ -24,11 +24,12 @@ urlpatterns = [
     path('delete/<post_title>', views.delete_post, name='delete_post'),
 
 
-
-
-
     path('login/', views.login, name='login'),
     path('logout/', views.logout, name='logout'),
     path('signup/', views.signup, name='signup'),
     path('contact/', views.contact, name='contact'),
 ]
+
+# if settings.DEBUG:
+#     urlpatterns += static(settings.MEDIA_URL,
+#                           document_root=settings.MEDIA_ROOT)
