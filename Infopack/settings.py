@@ -40,8 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # 'infapp.apps.InfappConfig'
-    'infapp'
+    'blog'
 
 ]
 
@@ -55,7 +54,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'infapp.urls'
+ROOT_URLCONF = 'Infopack.urls'
 
 ADMIN_VIEWS_SITE = 'myproject.admin.admin_site'
 
