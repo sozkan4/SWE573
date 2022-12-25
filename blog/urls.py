@@ -1,21 +1,34 @@
+from django.contrib import admin
 from django.urls import path
 from . import views
-from .views import AllSaveView, PostListView, PostDetailView, PostCreateView, PostUpdateView, PostDeleteView, SaveView, UserPostListView, LikeView,LikeCommentView, posts_of_following_profiles,  AllLikeView
 
 urlpatterns = [
-    path('', views.first, name='firsthome'),
-    path('home/', PostListView.as_view(), name='blog-home'),
-    path('feed/', posts_of_following_profiles, name='posts-follow-view'),
-    path('post/user/<str:username>/', UserPostListView.as_view(), name='user-posts'),
-    path('post/<int:pk>/', PostDetailView, name='post-detail'),
-    path('post/<int:pk>/update/', PostUpdateView.as_view(), name='post-update'),
-    path('post/<int:pk>/delete/', PostDeleteView.as_view(), name='post-delete'),
-    path('post/new/', PostCreateView.as_view(), name='post-create'),
-    path('post/like/', LikeView, name='post-like'),
-    path('liked-posts/', AllLikeView, name='all-like'),
-    path('post/save/', SaveView, name='post-save'),
-    path('saved-posts/', AllSaveView, name='all-save'),
-    path('post/comment/like/', LikeCommentView, name='comment-like'),
-    path('about/', views.about, name='blog-about'),
+    path('', views.home, name='home'),
+    path('post/<post_title>', views.view_post, name='view_post'),
+    path('post/<post_title>/like', views.like_post, name='like_post'),
+    path('post/<str:post_title>/comment',  views.add_comment, name='add_comment'),
+    path('profile/<str:user>', views.view_profile, name='profile'),
+    path('profile/<str:user>/settings', views.settings, name='settings'),
+
+
+
     path('search/', views.search, name='search'),
+    path('update_profile/<current_user>', views.update_profile, name='update_profile'),
+    path('change_image/<user>', views.change_image, name='change_image'),
+    path('delete_user/<user>', views.delete_user, name='delete_user'),
+
+
+
+    path('write_post/', views.write_post, name='write_post'),
+    path('post_created/', views.post_created, name='post_created'),
+    path('delete/<post_title>', views.delete_post, name='delete_post'),
+
+
+
+
+
+    path('login/', views.login, name='login'),
+    path('logout/', views.logout, name='logout'),
+    path('signup/', views.signup, name='signup'),
+    path('contact/', views.contact, name='contact'),
 ]
