@@ -40,7 +40,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'blog'
+    'ckeditor',
+    'blog',
 
 ]
 
@@ -137,6 +138,8 @@ CRISPY_TEMPLATE_PACK = 'bootstrap4'
 LOGIN_REDIRECT_URL = 'blog-home'
 LOGIN_URL = 'account_login'
 
+CKEDITOR_JQUERY_URL = os.path.join(STATIC_URL, 'js/jquery-3.5.1.min.js')
+
 CKEDITOR_CONFIGS = {
     'default': {
         'width':'auto',
@@ -175,4 +178,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 STATICFILES_DIRS = [
    os.path.join(BASE_DIR, "static"),
+   
 ]
+STATIC_ROOT = os.path.join(BASE_DIR, 'static_root')

@@ -1,5 +1,6 @@
 from django.db import models
 from datetime import datetime
+from ckeditor.fields import RichTextField
 # Create your models here.
 
 class User(models.Model):
@@ -17,10 +18,10 @@ class User(models.Model):
 class Post(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     title = models.CharField(max_length=100)
-    content = models.TextField()
+    content = RichTextField( blank=True, null=True)
     creation_date = models.DateField()
     likes = models.ManyToManyField(User, related_name='likes')
-
+    
     def __str__(self):
         return self.title
 
