@@ -67,3 +67,4 @@ virtualenv==20.17.1
 wcwidth==0.1.9
 websocket-client==0.59.0
 yarg==0.1.9
+django-rest-framework==0.1.0  
