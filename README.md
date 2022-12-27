@@ -8,7 +8,7 @@
 
 🔭 As saving articles, blog posts, movies, and other web content to read later is becoming increasingly important as more and more information is consumed digitally. So this project allows users to collect any web articles, videos, or tweets that users faced during browsing, and access them in one platform. [SWE573 Page](https://github.com/sozkan4/SWE573)  
   
-
+Project URL : http://44.211.72.164/
 
 
 ### Project Structure  
