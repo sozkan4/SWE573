@@ -1,17 +1,20 @@
-# Use an official Python runtime as a base image
-FROM python:3.10.8
+#Dockerfile
 
-# Set the working directory to /app
-WORKDIR /SWE573
+# Pull base image
+FROM python:3.9.16-slim-bullseye
 
-# Copy the current directory contents into the container at /app
-COPY . /SWE573
+# Set environment variables
+ENV PIP_DISABLE_PIP_VERSION_CHECK 1
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
 
-# Install any needed packages specified in requirements.txt
+# Set work directory
+WORKDIR /code
+
+# Install dependencies
+RUN apt-get update && apt-get upgrade -y && apt-get install gcc -y
+COPY ./requirements.txt .
 RUN pip install -r requirements.txt
 
-# Make port 80 available to the world outside this container
-EXPOSE 80
-
-# Run manage.py when the container launches
-CMD ["python", "manage.py", "runserver", "0.0.0.0:80"]
+# Copy project
+COPY . .
