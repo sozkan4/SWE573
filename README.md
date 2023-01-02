@@ -16,11 +16,11 @@ Project URL : http://44.211.72.164/
   
   
 
-- MySQL for the database (may change) , Docker (containerization)
+- PostgreSQL , Docker (containerization)
   
   
 
-- Frontend - React(may change)  
+- Frontend - Bootstrap
   
 
 <br/>  
