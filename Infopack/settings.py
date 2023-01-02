@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'ckeditor',
     'blog',
+    'django_extensions',
 
 ]
 
@@ -57,7 +58,7 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'Infopack.urls'
 
-ADMIN_VIEWS_SITE = 'myproject.admin.admin_site'
+ADMIN_VIEWS_SITE = 'blog.admin.admin_site'
 
 
 TEMPLATES = [
