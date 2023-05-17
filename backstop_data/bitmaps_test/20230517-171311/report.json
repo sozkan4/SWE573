@@ -1,10 +1,10 @@
-report({
+{
   "testSuite": "BackstopJS",
   "tests": [
     {
       "pair": {
         "reference": "../bitmaps_reference/backstop_default_Infopackz_Homepage_0_body_0_desktop.png",
-        "test": "../bitmaps_test/20230517-171939/backstop_default_Infopackz_Homepage_0_body_0_desktop.png",
+        "test": "../bitmaps_test/20230517-171311/backstop_default_Infopackz_Homepage_0_body_0_desktop.png",
         "selector": "body",
         "fileName": "backstop_default_Infopackz_Homepage_0_body_0_desktop.png",
         "label": "Infopackz Homepage",
@@ -19,4 +19,4 @@ report({
     }
   ],
   "id": "backstop_default"
-});
+}
