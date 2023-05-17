@@ -1,10 +1,10 @@
-report({
+{
   "testSuite": "BackstopJS",
   "tests": [
     {
       "pair": {
         "reference": "../bitmaps_reference/backstop_default_Homepage_0_body_0_desktop.png",
-        "test": "../bitmaps_test/20230517-150900/backstop_default_Homepage_0_body_0_desktop.png",
+        "test": "../bitmaps_test/20230517-150547/backstop_default_Homepage_0_body_0_desktop.png",
         "selector": "body",
         "fileName": "backstop_default_Homepage_0_body_0_desktop.png",
         "label": "Homepage",
@@ -19,14 +19,11 @@ report({
             "width": 0,
             "height": 0
           },
-          "rawMisMatchPercentage": 6.668402777777778,
-          "misMatchPercentage": "6.67",
-          "analysisTime": 45
-        },
-        "diffImage": "../bitmaps_test/20230517-150900/failed_diff_backstop_default_Homepage_0_body_0_desktop.png"
+          "misMatchPercentage": "0.00"
+        }
       },
-      "status": "fail"
+      "status": "pass"
     }
   ],
   "id": "backstop_default"
-});
+}
