@@ -12,3 +12,4 @@ pycparser==2.21
 python-dotenv==0.21.0
 sqlparse==0.4.3
 tzdata==2022.7
+django-extensions
