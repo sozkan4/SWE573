@@ -1,10 +1,10 @@
-report({
+{
   "testSuite": "BackstopJS",
   "tests": [
     {
       "pair": {
         "reference": "../bitmaps_reference/backstop_default_Infopackz_Homepage_0_body_0_desktop.png",
-        "test": "../bitmaps_test/20230517-172212/backstop_default_Infopackz_Homepage_0_body_0_desktop.png",
+        "test": "../bitmaps_test/20230517-172048/backstop_default_Infopackz_Homepage_0_body_0_desktop.png",
         "selector": "body",
         "fileName": "backstop_default_Infopackz_Homepage_0_body_0_desktop.png",
         "label": "Infopackz Homepage",
@@ -13,20 +13,10 @@ report({
         "url": "http://127.0.0.1",
         "expect": 0,
         "viewportLabel": "desktop",
-        "diff": {
-          "isSameDimensions": true,
-          "dimensionDifference": {
-            "width": 0,
-            "height": 0
-          },
-          "rawMisMatchPercentage": 6.951967592592593,
-          "misMatchPercentage": "6.95",
-          "analysisTime": 44
-        },
-        "diffImage": "../bitmaps_test/20230517-172212/failed_diff_backstop_default_Infopackz_Homepage_0_body_0_desktop.png"
+        "error": "Reference file not found /Users/semihozkan/Desktop/SWE573/backstop_data/bitmaps_reference/backstop_default_Infopackz_Homepage_0_body_0_desktop.png"
       },
       "status": "fail"
     }
   ],
   "id": "backstop_default"
-});
+}
