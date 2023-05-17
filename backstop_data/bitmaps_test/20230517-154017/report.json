@@ -1,0 +1,36 @@
+{
+  "testSuite": "BackstopJS",
+  "tests": [
+    {
+      "pair": {
+        "reference": "../bitmaps_reference/backstop_default_Happy_Path_-_Login_0_dashboard_0_desktop.png",
+        "test": "../bitmaps_test/20230517-154017/backstop_default_Happy_Path_-_Login_0_dashboard_0_desktop.png",
+        "selector": "#dashboard",
+        "fileName": "backstop_default_Happy_Path_-_Login_0_dashboard_0_desktop.png",
+        "label": "Happy Path - Login",
+        "misMatchThreshold": 0.1,
+        "url": "http://127.0.0.1/login",
+        "expect": 0,
+        "viewportLabel": "desktop",
+        "error": "Reference file not found /Users/semihozkan/Desktop/SWE573/backstop_data/bitmaps_reference/backstop_default_Happy_Path_-_Login_0_dashboard_0_desktop.png"
+      },
+      "status": "fail"
+    },
+    {
+      "pair": {
+        "reference": "../bitmaps_reference/backstop_default_Not-So-Happy_Path_-_Login_0_error-message_0_desktop.png",
+        "test": "../bitmaps_test/20230517-154017/backstop_default_Not-So-Happy_Path_-_Login_0_error-message_0_desktop.png",
+        "selector": "#error-message",
+        "fileName": "backstop_default_Not-So-Happy_Path_-_Login_0_error-message_0_desktop.png",
+        "label": "Not-So-Happy Path - Login",
+        "misMatchThreshold": 0.1,
+        "url": "http://127.0.0.1/login",
+        "expect": 0,
+        "viewportLabel": "desktop",
+        "error": "Reference file not found /Users/semihozkan/Desktop/SWE573/backstop_data/bitmaps_reference/backstop_default_Not-So-Happy_Path_-_Login_0_error-message_0_desktop.png"
+      },
+      "status": "fail"
+    }
+  ],
+  "id": "backstop_default"
+}

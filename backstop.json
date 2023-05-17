@@ -9,7 +9,7 @@
   ],
   "scenarios": [
     {
-      "label": "Homepage",
+      "label": "Infopackz Homepage",
       "url": "http://127.0.0.1",
       "selectors": ["body"],
       "misMatchThreshold" : 0.1,
