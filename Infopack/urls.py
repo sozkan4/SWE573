@@ -1,8 +1,11 @@
 from django.contrib import admin
 from django.urls import path
 from blog import views
+from django.urls import include, path
+
 
 urlpatterns = [
+    
     path('', views.home, name='home'),
     path('post/<post_title>', views.view_post, name='view_post'),
     path('post/<post_title>/like', views.like_post, name='like_post'),
@@ -22,6 +25,11 @@ urlpatterns = [
     path('write_post/', views.write_post, name='write_post'),
     path('post_created/', views.post_created, name='post_created'),
     path('delete/<post_title>', views.delete_post, name='delete_post'),
+    path('annotations/', include('annotations.urls')),
+
+
+
+
 
 
     path('login/', views.login, name='login'),

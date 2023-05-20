@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block title %}Post Annotations | Your Website{% endblock %}
+
+{% block body %}
+  <div class="container">
+    <h1>Post Annotations</h1>
+    
+    {% if annotations %}
+      <ul>
+        {% for annotation in annotations %}
+          <li>{{ annotation.annotation_id }} - {{ annotation.body }}</li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>No annotations available for this post.</p>
+    {% endif %}
+  </div>
+{% endblock %}

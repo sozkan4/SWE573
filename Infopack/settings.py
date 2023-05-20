@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'ckeditor',
     'blog',
     'django_extensions',
+    'annotations',
 
 ]
 

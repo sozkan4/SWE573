@@ -5,6 +5,8 @@ from django.http import HttpResponse, HttpResponseRedirect
 from datetime import date
 from django.urls import reverse_lazy, reverse
 from django.core.exceptions import ObjectDoesNotExist
+from django.http import JsonResponse
+
 
 # Create your views here.
 def home(request):
@@ -18,8 +20,33 @@ def home(request):
         param = {'feature_post': feature_post}
         return render(request, 'home.html', param)
 
-
-
+#Annotation API usage
+def annotations_api(request):
+    if request.method == 'GET':
+        # Retrieve annotations from the database or other data source
+        annotations = ...
+        return JsonResponse(annotations, safe=False)
+    elif request.method == 'POST':
+        # Save a new annotation to the database or other data source
+        data = request.POST.get('data')
+        # Process and save the annotation data
+        ...
+        return JsonResponse({'message': 'Annotation saved successfully'})
+    elif request.method == 'PUT':
+        # Update an existing annotation in the database or other data source
+        annotation_id = request.POST.get('annotation_id')
+        data = request.POST.get('data')
+        # Process and update the annotation data
+        ...
+        return JsonResponse({'message': 'Annotation updated successfully'})
+    elif request.method == 'DELETE':
+        # Delete an existing annotation from the database or other data source
+        annotation_id = request.POST.get('annotation_id')
+        # Delete the annotation
+        ...
+        return JsonResponse({'message': 'Annotation deleted successfully'})
+    else:
+        return JsonResponse({'message': 'Invalid request method'}, status=405)
 
 
 

@@ -4,7 +4,7 @@ report({
     {
       "pair": {
         "reference": "../bitmaps_reference/backstop_default_Infopackz_Homepage_0_body_0_desktop.png",
-        "test": "../bitmaps_test/20230518-173708/backstop_default_Infopackz_Homepage_0_body_0_desktop.png",
+        "test": "../bitmaps_test/20230518-184741/backstop_default_Infopackz_Homepage_0_body_0_desktop.png",
         "selector": "body",
         "fileName": "backstop_default_Infopackz_Homepage_0_body_0_desktop.png",
         "label": "Infopackz Homepage",
@@ -19,11 +19,11 @@ report({
             "width": 0,
             "height": 0
           },
-          "rawMisMatchPercentage": 6.951967592592593,
-          "misMatchPercentage": "6.95",
-          "analysisTime": 46
+          "rawMisMatchPercentage": 6.67163387345679,
+          "misMatchPercentage": "6.67",
+          "analysisTime": 45
         },
-        "diffImage": "../bitmaps_test/20230518-173708/failed_diff_backstop_default_Infopackz_Homepage_0_body_0_desktop.png"
+        "diffImage": "../bitmaps_test/20230518-184741/failed_diff_backstop_default_Infopackz_Homepage_0_body_0_desktop.png"
       },
       "status": "fail"
     }
